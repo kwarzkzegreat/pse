@@ -9,10 +9,10 @@
 # Its allowed arguments are:
 #	-None, Any Element Number, Any Element Name in two-letter-code 
 # 	 (eg. Ni|28 for Nickel), without anything, or followed by 
-#    <Property you're interested in>, which returns the value specified or
+#    	 <Property you're interested in>, which returns the value specified or
 #	 <short>, which returns a short list of interesting values.
 #	-Any empirical Formula, or molecular Formula for an Molecule 
-#    (eg. H2O as well as HOH (if you dare)),
+#    	 (eg. H2O as well as HOH (if you dare)),
 # 	 followed by <eval>
 # BUGS: None so far
 # TASKS: Add reaction eval
