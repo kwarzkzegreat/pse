@@ -18,21 +18,34 @@
 # TASKS: Add reaction eval
 
 
-pse() {
+get_gelemental_path() {
+    
+    shopt -s nullglob
+    local g_path=(/usr/bin/gelemental)
+    shopt -u nullglob
+        [[ -x "$g_path" ]] && \
+            { gelem_path="$g_path"; return; } && \
+                echo "$gelem_path"
+}
 
-M_weight=0
+
+pse() {
+    
+    get_gelemental_path
+    local gm="$gelem_path"
+    M_weight=0
 	if [ -z "$1" ] ; then
-	  gelemental --help
+	  $gm '--help'
 	  echo "User Options:"
 	  echo "	e.g.: ~$ pse H2O eval yields 'M(H20): 18.0153 g/mol'."
 	else
 	  if [ "$2" == "short" ] ; then
-		gelemental -p $1 \
-		| grep 'Atomic number\|Period\|Group\|Atomic mass\|Oxidation states\|Melting point\|Density,'
+	      $gm -p "$1" \
+              | grep 'Name\|Ordnungszahl\|Periode\|Gruppe\|Atomasse\|Oxidationszahlen\|Schmelzpunkt\|Dichte,'
 	  else
-		if [ "$2" == "Density" ] ; then
-		  gelemental -p $1 \
-		  | grep "Density,"
+		if [ "$2" == "Dichte" ] ; then
+		  $gm -p "$1" \
+		  | grep "Dichte,"
 		else
 		  if [ "$2" == "eval" ] ; then
 			local Elements=`echo $1 \
@@ -42,7 +55,7 @@ M_weight=0
 				local Mass=`echo $Element \
 				| tr -d 0-9\
 				| xargs gelemental -p \
-				| grep 'Atomic mass' \
+				| grep 'Atommasse' \
 				| tr -d [:alpha:][:blank:]:/ \
 				| sed 's/,/./g'`
 				local Mol=`echo $Element \
@@ -58,9 +71,9 @@ M_weight=0
 			echo "M($1): $M_weight g/mol"
 		  else
 			if [ -z "$2" ] ; then
-			  gelemental -p $1
+			  $gm -p "$1"
 			else
-				gelemental -p $1 \
+				$gm -p "$1" \
 				| grep "$2 $3"
 			fi
 		  fi
@@ -69,5 +82,30 @@ M_weight=0
 	fi
 }
 
-pse "$1" "$2" "$3"
+main() {
+
+    get_gelemental_path
+    if [[ ! -x "$gelem_path" ]]; then
+        printf "gelemental path not found, aborting.\n" \
+            && exit
+    else
+        #for i in "$1"; do 
+        #    if $(echo "$i" | grep -q [0-9]); then
+        #        local ev=1 && \
+        #            break
+        #    else
+        #        local ev=
+        #    fi
+        #done
+        local ev=$(echo "$1" | tr -d [:alpha:])
+        if [ ! -z "$ev" -a -z "$2" ]; then
+            pse "$1" 'eval'
+        else
+            pse "$@"
+        fi
+    fi
+}
+
+main "$@"
+# pse "$1" "$2" "$3"
 
